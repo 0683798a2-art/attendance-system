@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام تسجيل حضور الموظفين - مطاعم وبروست الأندلس (مُحسّن)</title>
+    <style>
+        /* CSS الأصلي مع بعض التعديلات البسيطة للطباعة */
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            /* الخلفية: اللون البيج الفاتح (لون شريط الزي) */
+            background: linear-gradient(135deg, #f0e6d4 0%, #e8dec7 50%, #f0e6d4 100%); 
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="30" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="80" r="2.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* تنسيق اسم المطعم ليحاكي الشعار الذهبي */
+        .restaurant-name {
+            font-family: 'Arial Black', Gadget, sans-serif; 
+            font-size: 2.2rem; 
+            margin-top: 15px;
+            color: transparent; 
+            text-shadow: 
+                0 0 5px rgba(255, 223, 0, 0.8), 
+                2px 2px 4px rgba(0, 0, 0, 0.5); 
+            
+            background: linear-gradient(180deg, #ffeb3b 0%, #ffc107 50%, #ffb300 100%);
+            -webkit-background-clip: text; 
+            background-clip: text; 
+            
+            font-weight: 900;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* سطر الوصف الصغير أسفل الاسم (مثل الشعار) */
+        .restaurant-slogan {
+            font-size: 1rem;
+            color: #ffeb3b;
+            margin-top: 8px;
+            font-style: italic;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 1;
+        }
+        
+
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 18px;
+            text-align: center;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #666;
+        }
+
+        .tab.active {
+            background: white;
+            color: #d32f2f;
+            border-bottom: 4px solid #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .tab:hover:not(.active) {
+            background: #e8e8e8;
+            color: #d32f2f;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 40px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #333;
+            font-size: 16px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #d32f2f;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 8px;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(211, 47, 47, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50, #388e3c);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #FF9800, #f57c00);
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        .btn-warning:hover {
+            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4);
+        }
+
+        /* زر التعديل الجديد */
+        .btn-edit {
+            background: linear-gradient(135deg, #1e88e5, #005cb2);
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+            border-radius: 8px;
+            margin: 0 5px;
+            box-shadow: 0 2px 10px rgba(30, 136, 229, 0.3);
+        }
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 136, 229, 0.4);
+        }
+
+
+        .attendance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .employee-card {
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+            border: 2px solid #e9ecef;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .employee-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+            border-color: #d32f2f;
+        }
+
+        .employee-card h3 {
+            margin: 0 0 15px 0;
+            color: #d32f2f;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .employee-card p {
+            margin: 8px 0;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .status-late {
+            background-color: #fff3cd !important;
+            color: #856404;
+            font-weight: 600;
+        }
+
+        .status-early {
+            background-color: #f8d7da !important;
+            color: #721c24;
+            font-weight: 600;
+        }
+
+        .status-complete {
+            background-color: #d4edda !important;
+            color: #155724;
+            font-weight: 600;
+        }
+
+        .status-present, .status-default {
+            background-color: #d1ecf1 !important;
+            color: #0c5460;
+            font-weight: 600;
+        }
+
+        /* حالة إضافية للتحسين */
+        .status-partial {
+            background-color: #ffe599 !important; /* لون برتقالي فاتح */
+            color: #9a6324;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 30px 0;
+            justify-content: center;
+        }
+
+        /* تصميم زر تصفير النظام */
+        .btn-reset {
+            background: linear-gradient(135deg, #f0f0f0, #cccccc); /* خلفية رمادية فاتحة */
+            color: #d32f2f; /* لون نص أحمر */
+            border: 2px solid #d32f2f;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin: 8px;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.1); /* ظل خفيف مرتبط باللون الأحمر */
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(211, 47, 47, 0.3);
+        }
+
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 30px 0;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .current-time {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1976d2;
+            box-shadow: 0 4px 15px rgba(25, 118, 210, 0.2);
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .quick-search-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            border: 2px solid #dee2e6;
+        }
+
+        .quick-search-section h3 {
+            margin-top: 0;
+            color: #d32f2f;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .developer-footer {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            margin-top: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .developer-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="0,0 100,0 80,100 0,100" fill="rgba(255,255,255,0.05)"/></svg>');
+        }
+
+        .developer-info {
+            position: relative;
+            z-index: 1;
+        }
+
+        .developer-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #3498db;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .developer-title {
+            font-size: 1.1rem;
+            color: #ecf0f1;
+            margin-bottom: 15px;
+        }
+
+        .developer-contact {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .restaurant-name {
+                font-size: 1.8rem; 
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                padding: 15px;
+            }
+
+            .tab-content {
+                padding: 25px;
+            }
+
+            .attendance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn-reset {
+                width: 100%;
+                margin: 8px 0;
+            }
+
+            .btn {
+                width: 100%;
+                margin: 8px 0;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px 6px;
+            }
+
+            .developer-footer {
+                padding: 20px;
+            }
+
+            .developer-name {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .tabs, .controls, .btn, .developer-footer, .filter-group, .quick-search-section, #employeeForm {
+                display: none !important;
+            }
+            
+            .tab-content {
+                display: block !important;
+            }
+
+            .header {
+                background: #d32f2f !important;
+                -webkit-print-color-adjust: exact;
+            }
+
+            /* إظهار محتوى السجلات أو قائمة الموظفين عند الطباعة */
+            #records .table-container, #employees .table-container {
+                display: block !important;
+                margin: 0;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🍽️ نظام تسجيل حضور الموظفين</h1>
+            <div class="restaurant-name">مطاعم وبروست الأندلس</div>
+            <div class="restaurant-slogan">جودة مستمرة ... ومذاق لا يُنسى</div>
+            <div class="current-time" id="currentTime"></div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('employees')">إدارة الموظفين</button>
+            <button class="tab" onclick="showTab('attendance')">تسجيل الحضور</button>
+            <button class="tab" onclick="showTab('records')">السجل اليومي</button>
+        </div>
+
+        <div id="employees" class="tab-content active">
+            <h2 id="employeeFormTitle">إضافة موظف جديد</h2>
+            <form id="employeeForm">
+                <input type="hidden" id="isEditing" value="false">
+                <div class="form-group">
+                    <label for="employeeId">رقم الموظف (ID)</label>
+                    <input type="text" id="employeeId" required placeholder="مثال: EMP001">
+                </div>
+                <div class="form-group">
+                    <label for="employeeName">اسم الموظف</label>
+                    <input type="text" id="employeeName" required placeholder="الاسم الكامل">
+                </div>
+                <div class="form-group">
+                    <label for="employeePosition">الوظيفة</label>
+                    <input type="text" id="employeePosition" required placeholder="أدخل الوظيفة يدوياً">
+                </div>
+                <div class="form-group">
+                    <label for="startTime">وقت بداية الدوام</label>
+                    <input type="time" id="startTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="endTime">وقت نهاية الدوام</label>
+                    <input type="time" id="endTime" required>
+                </div>
+                <button type="submit" class="btn" id="submitEmployeeBtn">إضافة موظف</button>
+            </form>
+            <div id="employeeAlert"></div>
+            
+            <h2 style="margin-top: 40px;">قائمة الموظفين الحاليين</h2>
+            <div class="table-container">
+                <table id="currentEmployeesTable">
+                    <thead>
+                        <tr>
+                            <th>رقم الموظف</th>
+                            <th>الاسم</th>
+                            <th>الوظيفة</th>
+                            <th>بداية الدوام</th>
+                            <th>نهاية الدوام</th>
+                            <th>إجراء</th> </tr>
+                    </thead>
+                    <tbody id="currentEmployeesBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="attendance" class="tab-content">
+            <h2>تسجيل الحضور والانصراف</h2>
+            
+            <div class="quick-search-section">
+                <h3>🔍 البحث السريع</h3>
+                <div style="display: flex; gap: 20px; align-items: end; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <label for="quickSearchId">رقم الموظف</label>
+                        <input type="text" id="quickSearchId" placeholder="اكتب رقم الموظف..." 
+                               oninput="quickSearch()" style="margin-bottom: 0;">
+                    </div>
+                    <button class="btn btn-success" onclick="quickCheckIn()" id="quickCheckInBtn" disabled>
+                        ✅ تسجيل حضور
+                    </button>
+                    <button class="btn btn-danger" onclick="quickCheckOut()" id="quickCheckOutBtn" disabled>
+                        ❌ تسجيل انصراف
+                    </button>
+                </div>
+                <div id="quickSearchResult" style="margin-top: 20px; padding: 20px; background: white; border-radius: 12px; display: none; border: 2px solid #dee2e6;">
+                    </div>
+            </div>
+
+            <h3>أو اختر من قائمة الموظفين:</h3>
+            <div class="attendance-grid" id="attendanceGrid">
+                </div>
+        </div>
+
+        <div id="records" class="tab-content">
+            <h2>السجل اليومي</h2>
+            <div class="filter-group">
+                <label for="dateFilter">فلترة حسب التاريخ:</label>
+                <input type="date" id="dateFilter" onchange="filterRecords()">
+                <button class="btn" onclick="clearFilter()">إظهار الكل</button>
+            </div>
+            <div class="controls">
+                <button class="btn btn-success" onclick="downloadCSV()">📥 تحميل CSV</button>
+                <button class="btn btn-warning" onclick="printRecords()">🖨️ طباعة</button>
+                <button class="btn" onclick="shareRecords()">📤 مشاركة</button>
+                <button class="btn-reset" onclick="resetSystem()">🗑️ تصفير النظام</button>
+            </div>
+            <div class="table-container">
+                <table id="recordsTable">
+                    <thead>
+                        <tr>
+                            <th>رقم الموظف</th>
+                            <th>الاسم</th>
+                            <th>الوظيفة</th>
+                            <th>التاريخ</th>
+                            <th>بداية الدوام</th>
+                            <th>نهاية الدوام</th>
+                            <th>وقت الحضور</th>
+                            <th>وقت الانصراف</th>
+                            <th>ساعات العمل</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="developer-footer">
+            <div class="developer-info">
+                <div class="developer-name">عبد الحميد فرج</div>
+                <div class="developer-title">مطور ومصمم النظام</div>
+                <div class="developer-contact">تم تطوير هذا النظام خصيصاً لمطاعم وبروست الأندلس</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // البيانات المحلية
+        let employees = JSON.parse(localStorage.getItem('andalus_employees')) || [];
+        let attendanceRecords = JSON.parse(localStorage.getItem('andalus_attendance')) || [];
+
+        // دوال التخزين (تحسين)
+        function saveEmployees() {
+            localStorage.setItem('andalus_employees', JSON.stringify(employees));
+        }
+
+        function saveAttendanceRecords() {
+            localStorage.setItem('andalus_attendance', JSON.stringify(attendanceRecords));
+        }
+        
+        // تحديث الوقت الحالي
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('ar-EG', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        // تشغيل تحديث الوقت كل ثانية
+        setInterval(updateCurrentTime, 1000);
+        updateCurrentTime();
+
+        // التبديل بين التبويبات
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            const activeTabButton = Array.from(document.querySelectorAll('.tab')).find(btn => btn.getAttribute('onclick').includes(`'${tabName}'`));
+            if (activeTabButton) activeTabButton.classList.add('active');
+
+            if (tabName === 'employees') {
+                displayCurrentEmployees(); 
+                // إعادة تهيئة النموذج لحالة الإضافة عند العودة لتبويب الموظفين
+                resetEmployeeFormToAdding();
+            } else if (tabName === 'attendance') {
+                displayAttendanceCards();
+            } else if (tabName === 'records') {
+                displayRecords();
+            }
+        }
+
+        // عرض رسالة تنبيه
+        function showAlert(elementId, message, type) {
+            const alertDiv = document.getElementById(elementId);
+            alertDiv.innerHTML = `<div class="alert alert-${type === 'success' ? 'success' : 'error'}">${message}</div>`;
+            setTimeout(() => {
+                alertDiv.innerHTML = '';
+            }, 4000);
+        }
+
+        // عرض تنبيه خاص بالبحث السريع (تحسين)
+        function quickSearchAlert(message, type) {
+            const resultDiv = document.getElementById('quickSearchResult');
+            // إزالة التنبيهات السابقة أولاً
+            resultDiv.querySelectorAll('.alert').forEach(alert => alert.remove());
+            
+            const alertHtml = `<div class="alert alert-${type === 'success' ? 'success' : 'error'}" style="margin-top: 15px;">${message}</div>`;
+            resultDiv.insertAdjacentHTML('beforeend', alertHtml); 
+            setTimeout(() => {
+                resultDiv.querySelector('.alert')?.remove();
+            }, 3000);
+        }
+
+        // دالة لإعادة تهيئة نموذج الموظف لحالة الإضافة
+        function resetEmployeeFormToAdding() {
+            document.getElementById('employeeForm').reset();
+            document.getElementById('employeeFormTitle').textContent = 'إضافة موظف جديد';
+            document.getElementById('submitEmployeeBtn').textContent = 'إضافة موظف';
+            document.getElementById('isEditing').value = 'false';
+            document.getElementById('employeeId').disabled = false;
+        }
+
+        // إضافة موظف جديد / حفظ التعديلات
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const employeeId = document.getElementById('employeeId').value.trim();
+            const employeeName = document.getElementById('employeeName').value.trim();
+            const employeePosition = document.getElementById('employeePosition').value.trim();
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const isEditing = document.getElementById('isEditing').value === 'true';
+
+            if (isEditing) {
+                // حالة التعديل
+                const employeeIndex = employees.findIndex(emp => emp.id === employeeId);
+                if (employeeIndex !== -1) {
+                    // تحديث بيانات الموظف
+                    employees[employeeIndex].name = employeeName;
+                    employees[employeeIndex].position = employeePosition;
+                    employees[employeeIndex].startTime = startTime;
+                    employees[employeeIndex].endTime = endTime;
+
+                    // تحديث الاسم والوظيفة في السجلات التاريخية
+                    attendanceRecords.forEach(record => {
+                        if (record.employeeId === employeeId) {
+                            record.employeeName = employeeName;
+                            record.employeePosition = employeePosition;
+                            // ملاحظة: لا نغير وقت الدوام في السجلات القديمة، فقط الاسم والوظيفة
+                        }
+                    });
+
+                    saveEmployees();
+                    saveAttendanceRecords();
+                    showAlert('employeeAlert', 'تم تحديث بيانات الموظف بنجاح!', 'success');
+                    resetEmployeeFormToAdding();
+                    displayCurrentEmployees();
+                    displayAttendanceCards();
+                } else {
+                    showAlert('employeeAlert', 'خطأ: لم يتم العثور على الموظف للتعديل.', 'error');
+                }
+
+            } else {
+                // حالة الإضافة
+                if (employees.find(emp => emp.id === employeeId)) {
+                    showAlert('employeeAlert', 'رقم الموظف موجود مسبقاً!', 'error');
+                    return;
+                }
+
+                const newEmployee = {
+                    id: employeeId,
+                    name: employeeName,
+                    position: employeePosition,
+                    startTime: startTime,
+                    endTime: endTime
+                };
+
+                employees.push(newEmployee);
+                saveEmployees();
+                
+                showAlert('employeeAlert', 'تم إضافة الموظف بنجاح!', 'success');
+                document.getElementById('employeeForm').reset();
+                displayCurrentEmployees();
+                displayAttendanceCards();
+            }
+        });
+        
+        // دالة لتعديل بيانات الموظف
+        window.editEmployee = function(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            if (!employee) return;
+
+            // 1. تغيير حالة النموذج لـ "تعديل"
+            document.getElementById('employeeFormTitle').textContent = `تعديل بيانات الموظف: ${employee.name}`;
+            document.getElementById('submitEmployeeBtn').textContent = 'حفظ التعديلات';
+            document.getElementById('isEditing').value = 'true';
+
+            // 2. ملء حقول النموذج
+            document.getElementById('employeeId').value = employee.id;
+            document.getElementById('employeeName').value = employee.name;
+            document.getElementById('employeePosition').value = employee.position;
+            document.getElementById('startTime').value = employee.startTime;
+            document.getElementById('endTime').value = employee.endTime;
+            
+            // 3. تعطيل حقل ID لمنع التغيير
+            document.getElementById('employeeId').disabled = true;
+
+            // 4. الانتقال إلى أعلى الصفحة لرؤية النموذج
+            window.scrollTo(0, 0);
+        };
+
+
+        // عرض قائمة الموظفين الحاليين (مع زر التعديل)
+        function displayCurrentEmployees() {
+            const tbody = document.getElementById('currentEmployeesBody');
+            tbody.innerHTML = '';
+            
+            if (employees.length === 0) {
+                 tbody.innerHTML = '<tr><td colspan="6" style="color: #999; padding: 20px;">لا يوجد موظفين مسجلين.</td></tr>';
+                 return;
+            }
+
+            employees.forEach(emp => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${emp.id}</td>
+                    <td>${emp.name}</td>
+                    <td>${emp.position}</td>
+                    <td>${formatTime12Hour(emp.startTime)}</td>
+                    <td>${formatTime12Hour(emp.endTime)}</td>
+                    <td>
+                        <button class="btn btn-edit" onclick="editEmployee('${emp.id}')">تعديل</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // عرض بطاقات الحضور (تم تصحيح التاريخ)
+        function displayAttendanceCards() {
+            const grid = document.getElementById('attendanceGrid');
+            grid.innerHTML = '';
+
+            if (employees.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: #666; grid-column: 1/-1; font-size: 1.2rem; padding: 40px;">لا يوجد موظفين مسجلين في النظام</p>';
+                return;
+            }
+
+            employees.forEach(employee => {
+                // التصحيح: استخراج التاريخ المحلي بصيغة YYYY-MM-DD
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const today = `${year}-${month}-${day}`; // التاريخ المحلي الصحيح
+                
+                const todayRecord = attendanceRecords.find(record => 
+                    record.employeeId === employee.id && record.date === today
+                );
+
+                const card = document.createElement('div');
+                card.className = 'employee-card';
+                card.innerHTML = `
+                    <h3>${employee.name}</h3>
+                    <p><strong>رقم الموظف:</strong> ${employee.id}</p>
+                    <p><strong>الوظيفة:</strong> ${employee.position}</p>
+                    <p><strong>الدوام:</strong> ${formatTime12Hour(employee.startTime)} - ${formatTime12Hour(employee.endTime)}</p>
+                    ${todayRecord ? `
+                        <p><strong>الحضور:</strong> ${todayRecord.checkIn ? formatTime12Hour(todayRecord.checkIn) : 'لم يسجل'}</p>
+                        <p><strong>الانصراف:</strong> ${todayRecord.checkOut ? formatTime12Hour(todayRecord.checkOut) : 'لم يسجل'}</p>
+                        <p><strong>الحالة:</strong> <span style="color: ${getStatusColor(todayRecord.status)};">${todayRecord.status}</span></p>
+                    ` : ''}
+                    <div style="margin-top: 20px;">
+                        <button class="btn btn-success" onclick="checkIn('${employee.id}')" 
+                                ${todayRecord && todayRecord.checkIn ? 'disabled' : ''}>
+                            تسجيل حضور
+                        </button>
+                        <button class="btn btn-danger" onclick="checkOut('${employee.id}')" 
+                                ${!todayRecord || !todayRecord.checkIn || todayRecord.checkOut ? 'disabled' : ''}>
+                            تسجيل انصراف
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // تسجيل الحضور (تم تصحيح التاريخ)
+        function checkIn(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            const now = new Date();
+            // التصحيح: استخراج التاريخ المحلي بصيغة YYYY-MM-DD
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const today = `${year}-${month}-${day}`; // التاريخ المحلي الصحيح
+            
+            const currentTime = now.toTimeString().split(' ')[0];
+
+            let existingRecord = attendanceRecords.find(record => 
+                record.employeeId === employeeId && record.date === today
+            );
+
+            if (!existingRecord) {
+                existingRecord = {
+                    employeeId: employeeId,
+                    employeeName: employee.name,
+                    employeePosition: employee.position,
+                    date: today,
+                    // عند إنشاء سجل جديد، نستخدم مواعيد دوام الموظف الحالية
+                    startTime: employee.startTime, 
+                    endTime: employee.endTime, 
+                    checkIn: null,
+                    checkOut: null,
+                    workingHours: '00:00:00',
+                    status: ''
+                };
+                attendanceRecords.push(existingRecord);
+            }
+
+            existingRecord.checkIn = currentTime;
+            
+            // تحديد الحالة الأولية
+            const startTimeMinutes = timeToMinutes(employee.startTime);
+            const checkInMinutes = timeToMinutes(currentTime);
+            
+            if (checkInMinutes > startTimeMinutes + 15) { // تأخير أكثر من 15 دقيقة
+                existingRecord.status = 'متأخر';
+            } else {
+                existingRecord.status = 'في الوقت المناسب';
+            }
+
+            saveAttendanceRecords();
+            displayAttendanceCards();
+        }
+
+        // تسجيل الانصراف (تم تصحيح التاريخ)
+        function checkOut(employeeId) {
+            const employee = employees.find(emp => emp.id === employeeId);
+            const now = new Date();
+            // التصحيح: استخراج التاريخ المحلي بصيغة YYYY-MM-DD
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const today = `${year}-${month}-${day}`; // التاريخ المحلي الصحيح
+
+            const currentTime = now.toTimeString().split(' ')[0];
+
+            const record = attendanceRecords.find(record => 
+                record.employeeId === employeeId && record.date === today
+            );
+
+            if (record) {
+                record.checkOut = currentTime;
+                
+                // حساب ساعات العمل
+                const workingMinutes = timeToMinutes(record.checkOut) - timeToMinutes(record.checkIn);
+                record.workingHours = minutesToTime(workingMinutes);
+                
+                // تحديد الحالة النهائية (المنطق المحسن)
+                // نستخدم مواعيد الدوام المحفوظة في السجل نفسه لضمان الدقة التاريخية
+                const startTimeMinutes = timeToMinutes(record.startTime);
+                const endTimeMinutes = timeToMinutes(record.endTime);
+                const expectedWorkingMinutes = endTimeMinutes - startTimeMinutes; 
+                
+                // هامش 30 دقيقة للدوام الكامل
+                const fullWorkThreshold = expectedWorkingMinutes - 30; 
+
+                if (workingMinutes < fullWorkThreshold) {
+                    const checkOutMinutes = timeToMinutes(currentTime);
+                    if (checkOutMinutes < endTimeMinutes - 60) {
+                        record.status = 'غادر مبكراً جداً';
+                    } else {
+                        record.status = 'دوام غير مكتمل';
+                    }
+                } 
+                else if (workingMinutes >= fullWorkThreshold) {
+                    if (record.status === 'متأخر') {
+                        record.status = 'أنهى دوام كامل (متأخر)'; 
+                    } else {
+                        record.status = 'أنهى دوام كامل';
+                    }
+                } 
+                
+                saveAttendanceRecords();
+                displayAttendanceCards();
+            }
+        }
+
+        // تحويل الوقت إلى دقائق
+        function timeToMinutes(timeString) {
+            const [hours, minutes, seconds = 0] = timeString.split(':').map(Number);
+            return hours * 60 + minutes + seconds / 60;
+        }
+
+        // تحويل الدقائق إلى وقت
+        function minutesToTime(minutes) {
+            if (minutes < 0) minutes = 0;
+            const hours = Math.floor(minutes / 60);
+            const mins = Math.floor(minutes % 60);
+            const secs = Math.floor((minutes % 1) * 60);
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // تنسيق الوقت إلى 12 ساعة
+        function formatTime12Hour(timeString) {
+            if (!timeString) return '-';
+            const [hours, minutes] = timeString.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'مساءً' : 'صباحاً';
+            const hour12 = hour % 12 || 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        }
+
+        // دالة مساعدة لتحديد لون حالة النص
+        function getStatusColor(status) {
+            switch(status) {
+                case 'متأخر': return '#856404'; 
+                case 'غادر مبكراً':
+                case 'غادر مبكراً جداً':
+                case 'دوام غير مكتمل':
+                    return '#721c24'; 
+                case 'أنهى دوام كامل':
+                case 'أنهى دوام كامل (متأخر)':
+                    return '#155724'; 
+                default: return '#0c5460'; 
+            }
+        }
+
+        // دالة مساعدة لتحديد فئة CSS للحالة في الجدول
+        function getStatusClass(status) {
+            switch(status) {
+                case 'متأخر': return 'status-late';
+                case 'غادر مبكراً':
+                case 'غادر مبكراً جداً':
+                    return 'status-early';
+                case 'دوام غير مكتمل':
+                    return 'status-partial';
+                case 'أنهى دوام كامل':
+                case 'أنهى دوام كامل (متأخر)':
+                    return 'status-complete';
+                default: return 'status-present';
+            }
+        }
+
+
+        // عرض السجلات
+        function displayRecords() {
+            const tbody = document.getElementById('recordsBody');
+            tbody.innerHTML = '';
+
+            const sortedRecords = [...attendanceRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (sortedRecords.length === 0) {
+                 tbody.innerHTML = '<tr><td colspan="10" style="color: #999; padding: 20px;">لا توجد سجلات حضور حتى الآن.</td></tr>';
+                 return;
+            }
+
+            sortedRecords.forEach(record => {
+                const row = document.createElement('tr');
+                
+                row.className = getStatusClass(record.status);
+                
+                row.innerHTML = `
+                    <td>${record.employeeId}</td>
+                    <td>${record.employeeName}</td>
+                    <td>${record.employeePosition}</td>
+                    <td>${new Date(record.date).toLocaleDateString('ar-EG')}</td>
+                    <td>${formatTime12Hour(record.startTime)}</td>
+                    <td>${formatTime12Hour(record.endTime)}</td>
+                    <td>${record.checkIn ? formatTime12Hour(record.checkIn) : '-'}</td>
+                    <td>${record.checkOut ? formatTime12Hour(record.checkOut) : '-'}</td>
+                    <td>${record.workingHours}</td>
+                    <td>${record.status}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // فلترة السجلات حسب التاريخ
+        function filterRecords() {
+            const filterDate = document.getElementById('dateFilter').value;
+            const tbody = document.getElementById('recordsBody');
+            tbody.innerHTML = '';
+
+            const filteredRecords = attendanceRecords.filter(record => 
+                !filterDate || record.date === filterDate
+            ).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (filteredRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="color: #999; padding: 20px;">لا توجد سجلات لهذا التاريخ.</td></tr>';
+                return;
+            }
+
+            filteredRecords.forEach(record => {
+                const row = document.createElement('tr');
+                row.className = getStatusClass(record.status);
+
+                row.innerHTML = `
+                    <td>${record.employeeId}</td>
+                    <td>${record.employeeName}</td>
+                    <td>${record.employeePosition}</td>
+                    <td>${new Date(record.date).toLocaleDateString('ar-EG')}</td>
+                    <td>${formatTime12Hour(record.startTime)}</td>
+                    <td>${formatTime12Hour(record.endTime)}</td>
+                    <td>${record.checkIn ? formatTime12Hour(record.checkIn) : '-'}</td>
+                    <td>${record.checkOut ? formatTime12Hour(record.checkOut) : '-'}</td>
+                    <td>${record.workingHours}</td>
+                    <td>${record.status}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // مسح الفلتر
+        function clearFilter() {
+            document.getElementById('dateFilter').value = '';
+            displayRecords();
+        }
+
+        // تحميل CSV
+        function downloadCSV() {
+            const headers = ['رقم الموظف', 'الاسم', 'الوظيفة', 'التاريخ', 'بداية الدوام', 'نهاية الدوام', 'وقت الحضور', 'وقت الانصراف', 'ساعات العمل', 'الحالة'];
+            
+            let csvContent = '\uFEFF' + 'سجل حضور موظفين - مطاعم وبروست الأندلس\n';
+            csvContent += 'تاريخ التصدير: ' + new Date().toLocaleDateString('ar-EG') + '\n\n';
+            csvContent += headers.join(',') + '\n';
+            
+            const recordsToExport = attendanceRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            recordsToExport.forEach(record => {
+                const row = [
+                    record.employeeId,
+                    record.employeeName,
+                    record.employeePosition,
+                    new Date(record.date).toLocaleDateString('ar-EG'),
+                    formatTime12Hour(record.startTime),
+                    formatTime12Hour(record.endTime),
+                    record.checkIn ? formatTime12Hour(record.checkIn) : '-',
+                    record.checkOut ? formatTime12Hour(record.checkOut) : '-',
+                    record.workingHours,
+                    record.status
+                ];
+                csvContent += row.map(item => `"${item.toString().replace(/"/g, '""')}"`).join(',') + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `سجل_حضور_الأندلس_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // طباعة السجلات (تم تفعيل الزر)
+        function printRecords() {
+            window.print();
+        }
+
+        // مشاركة السجلات (تم تفعيل الزر)
+        function shareRecords() {
+            let shareText = 'سجل حضور موظفين - مطاعم وبروست الأندلس\n\n';
+            attendanceRecords.forEach(record => {
+                shareText += `${record.employeeName} - ${record.status} - ${new Date(record.date).toLocaleDateString('ar-EG')}\n`;
+            });
+            
+            if (navigator.share) {
+                // تفعيل المشاركة المدمجة في المتصفح للهواتف والأجهزة اللوحية
+                navigator.share({
+                    title: 'سجل حضور موظفين - مطاعم وبروست الأندلس',
+                    text: shareText
+                }).catch(console.error);
+            } else {
+                // بديل: النسخ إلى الحافظة لأجهزة الكمبيوتر
+                navigator.clipboard.writeText(shareText).then(() => {
+                    // في حالة عدم وجود مكان واضح، نعرضه في الـ quickSearchResult إذا كان مرئياً
+                    const resultDiv = document.getElementById('quickSearchResult');
+                    if (resultDiv.style.display !== 'none') {
+                        quickSearchAlert('تم نسخ السجل إلى الحافظة (لصق النص في أي مكان)', 'success');
+                    } else {
+                         // ببساطة نبلغ المستخدم
+                         alert('تم نسخ السجل إلى الحافظة. يمكنك لصقه في أي مكان.');
+                    }
+
+                }).catch(() => {
+                    // في حال فشل النسخ
+                    showAlert('employeeAlert', 'لا يمكن المشاركة في هذا المتصفح', 'error');
+                });
+            }
+        }
+        
+        // الوظيفة الجديدة: تصفير النظام
+        function resetSystem() {
+            const confirmMessage = "هل أنت متأكد أنك تريد حذف جميع الموظفين والسجلات؟ هذه العملية لا يمكن التراجع عنها.";
+            
+            if (confirm(confirmMessage)) {
+                // حذف البيانات من localStorage
+                localStorage.removeItem('andalus_employees');
+                localStorage.removeItem('andalus_attendance');
+                
+                // إعادة تهيئة المتغيرات في الذاكرة
+                employees = [];
+                attendanceRecords = [];
+                
+                // عرض رسالة نجاح (سنستخدم alert مؤقتاً لضمان الرؤية بعد إعادة التحميل)
+                alert('تم تصفير النظام بنجاح! سيتم تحديث الصفحة لعرض النظام فارغاً.');
+                
+                // تحديث الصفحة لإعادة تحميل البيانات وعرضها بشكل فارغ
+                window.location.reload();
+            } else {
+                // المستخدم رفض، لا يتم فعل شيء
+                console.log('تم إلغاء عملية تصفير النظام.');
+            }
+        }
+
+
+        // البحث السريع
+        let selectedEmployee = null;
+
+        function quickSearch() {
+            const searchId = document.getElementById('quickSearchId').value.trim();
+            const resultDiv = document.getElementById('quickSearchResult');
+            const checkInBtn = document.getElementById('quickCheckInBtn');
+            const checkOutBtn = document.getElementById('quickCheckOutBtn');
+
+            resultDiv.querySelectorAll('.alert').forEach(alert => alert.remove());
+
+            if (!searchId) {
+                resultDiv.style.display = 'none';
+                checkInBtn.disabled = true;
+                checkOutBtn.disabled = true;
+                selectedEmployee = null;
+                return;
+            }
+
+            const employee = employees.find(emp => emp.id === searchId);
+            
+            if (employee) {
+                selectedEmployee = employee;
+                // التصحيح: استخراج التاريخ المحلي بصيغة YYYY-MM-DD
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const today = `${year}-${month}-${day}`; // التاريخ المحلي الصحيح
+
+                const todayRecord = attendanceRecords.find(record => 
+                    record.employeeId === employee.id && record.date === today
+                );
+
+                resultDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 25px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 280px;">
+                            <h4 style="margin: 0; color: #d32f2f; font-size: 1.3rem;">✅ تم العثور على الموظف</h4>
+                            <p style="margin: 8px 0; font-size: 1.1rem;"><strong>الاسم:</strong> ${employee.name}</p>
+                            <p style="margin: 8px 0;"><strong>الوظيفة:</strong> ${employee.position}</p>
+                            <p style="margin: 8px 0;"><strong>الدوام:</strong> ${formatTime12Hour(employee.startTime)} - ${formatTime12Hour(employee.endTime)}</p>
+                        </div>
+                        <div style="min-width: 220px;">
+                            ${todayRecord ? `
+                                <p style="margin: 8px 0;"><strong>الحضور اليوم:</strong> ${todayRecord.checkIn ? formatTime12Hour(todayRecord.checkIn) : 'لم يسجل'}</p>
+                                <p style="margin: 8px 0;"><strong>الانصراف:</strong> ${todayRecord.checkOut ? formatTime12Hour(todayRecord.checkOut) : 'لم يسجل'}</p>
+                                <p style="margin: 8px 0; font-weight: 700;"><strong>الحالة:</strong> <span style="color: ${getStatusColor(todayRecord.status)};">${todayRecord.status}</span></p>
+                            ` : '<p style="color: #666; font-style: italic;">لم يسجل حضور اليوم</p>'}
+                        </div>
+                    </div>
+                `;
+                
+                resultDiv.style.display = 'block';
+                
+                // تفعيل/تعطيل الأزرار
+                checkInBtn.disabled = todayRecord && todayRecord.checkIn;
+                checkOutBtn.disabled = !todayRecord || !todayRecord.checkIn || todayRecord.checkOut;
+                
+            } else {
+                selectedEmployee = null;
+                resultDiv.innerHTML = `
+                    <div style="text-align: center; color: #721c24;">
+                        <h4 style="margin: 0; font-size: 1.2rem;">❌ لم يتم العثور على موظف برقم: ${searchId}</h4>
+                        <p style="margin: 15px 0;">تأكد من رقم الموظف أو قم بإضافته من تبويب "إدارة الموظفين"</p>
+                    </div>
+                `;
+                resultDiv.style.display = 'block';
+                checkInBtn.disabled = true;
+                checkOutBtn.disabled = true;
+            }
+        }
+
+        function quickCheckIn() {
+            if (selectedEmployee && !document.getElementById('quickCheckInBtn').disabled) {
+                checkIn(selectedEmployee.id);
+                quickSearchAlert(`تم تسجيل حضور ${selectedEmployee.name} بنجاح!`, 'success');
+                setTimeout(quickSearch, 100);
+            }
+        }
+
+        function quickCheckOut() {
+            if (selectedEmployee && !document.getElementById('quickCheckOutBtn').disabled) {
+                checkOut(selectedEmployee.id);
+                quickSearchAlert(`تم تسجيل انصراف ${selectedEmployee.name} بنجاح!`, 'success');
+                setTimeout(quickSearch, 100);
+            }
+        }
+
+        // إضافة مفتاح Enter للبحث السريع (تحسين)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('quickSearchId').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedEmployee && !document.getElementById('quickCheckInBtn').disabled) {
+                        quickCheckIn();
+                    } else if (selectedEmployee && !document.getElementById('quickCheckOutBtn').disabled) {
+                         quickCheckOut();
+                    }
+                }
+            });
+            
+            displayCurrentEmployees();
+            displayAttendanceCards();
+            displayRecords();
+            
+            showTab('employees');
+        });
+    </script>
+</body>
+</html>
